@@ -10,7 +10,7 @@ A browser-based photo booth app. It uses the machine's webcam as the booth camer
 - **Node.js LTS** installed (https://nodejs.org) — the launcher scripts auto-detect it; if none is found they print setup instructions
 - Google Chrome or Microsoft Edge
 
-> The launcher scripts (`start.bat` / `start-server.bat`) automatically run `npm install` on first run, so a fresh clone works out of the box — no manual setup needed.
+> The launcher scripts (`start.bat`) automatically run `npm install` on first run, so a fresh clone works out of the box — no manual setup needed.
 
 ## 2. Project Layout
 
@@ -18,7 +18,8 @@ A browser-based photo booth app. It uses the machine's webcam as the booth camer
 photobooth/
 ├── server.js            Node server: static files, save screenshot, QR code, phone download page
 ├── start.bat            One-click launcher: server + fullscreen (kiosk) browser
-├── start-server.bat     Server only (opens a console window with logs)
+│                        (`start.bat server` = server only, no browser)
+├── deploy.bat           Deployment script for new machines (see section 4)
 ├── public/              Front end (index.html / style.css / app.js)
 ├── assets/
 │   ├── idle/            Idle-mode webm animations
@@ -30,7 +31,7 @@ photobooth/
 
 ## 3. First-Time Setup
 
-1. Double-click `start-server.bat` (or `start.bat`) to start the server on port **8787**.
+1. Double-click `start.bat` to start the server on port **8787**.
 2. Open `http://localhost:8787` in Chrome/Edge on the booth machine.
 3. The browser asks for camera permission — click **Allow**. This is asked only once.
    - If you previously blocked it: click the lock icon left of the address bar, set **Camera** to **Allow**, then refresh.
@@ -38,9 +39,20 @@ photobooth/
 
 > Important: the booth page must be opened via `localhost`. Browsers block camera access on non-localhost addresses (that address is only for phones downloading photos).
 
-## 4. Daily Use
+## 4. Deploying to a New Machine
 
-### Option A — Full booth mode (recommended)
+1. Copy the whole `photobooth` folder to the target machine (USB drive, network share, or `git clone`).
+2. Double-click **`deploy.bat`** on the target machine. It will:
+   - Download and install **Node.js LTS** if it's missing (admin rights may be requested)
+   - Copy the project to `Documents\photobooth`
+   - Install the dependencies there
+   - Create `photobooth.bat` in the Windows **Startup folder**, so the booth launches automatically at every logon
+3. Copy your real animation webm files into `Documents\photobooth\assets\idle\` and `Documents\photobooth\assets\countdown\` (the repo only contains empty placeholders).
+4. Run `Documents\photobooth\start.bat` once, allow the camera permission when the browser asks — done. It will start by itself from the next boot.
+
+## 5. Daily Use
+
+### Full booth mode (recommended)
 
 Double-click **`start.bat`**. It will:
 
@@ -50,15 +62,15 @@ Double-click **`start.bat`**. It will:
 
 To exit kiosk mode, press **Alt + F4**.
 
-### Option B — Server only
+### Server only
 
-Double-click **`start-server.bat`** if you want to control the browser yourself (useful while developing). Keep the console window open; closing it stops the server. Then open `http://localhost:8787` manually in any browser.
+Run **`start.bat server`** if you want to control the browser yourself (useful while developing). Keep the console window open; closing it stops the server. Then open `http://localhost:8787` manually in any browser.
 
 ### Boot autostart (optional)
 
 Press `Win + R`, type `shell:startup`, press Enter, and drop a shortcut to `start.bat` into that folder. The booth will launch automatically on every boot.
 
-## 5. How the Booth Flows
+## 6. How the Booth Flows
 
 | Stage | Duration | What happens |
 |---|---|---|
@@ -70,7 +82,7 @@ Press `Win + R`, type `shell:startup`, press Enter, and drop a shortcut to `star
 
 The screenshot is a composite of exactly what the screen shows at the moment of capture: camera (cover) + background animation + the last frame of animation 2. Files are saved as PNG in `captures/`, named by timestamp.
 
-## 6. Replacing the Animations
+## 7. Replacing the Animations
 
 Just drop your own webm files into the folders — no code changes needed. Refresh the page to pick them up (the server reads the folders live).
 
@@ -88,18 +100,18 @@ Tips:
 - If `1/2` files are missing, an on-screen 3-2-1 number countdown is used as a fallback and the shot fires after it.
 - To regenerate the built-in sample animations, run `tools/gen_anims.py` (colors and durations are at the top of the script).
 
-## 7. Phone Download Page
+## 8. Phone Download Page
 
 - The QR code points to `http://<LAN-IP>:8787/photo/<file>` — phones must be on the **same network** as the booth PC.
 - The page shows "Welcome!", the photo, and a dark-blue **Save to Phone** button.
 - If phones can't open the link, check that Windows Firewall allows inbound connections on port 8787 for private networks.
 
-## 8. Troubleshooting
+## 9. Troubleshooting
 
 | Symptom | Fix |
 |---|---|
 | Black screen / camera error | Check camera permission (lock icon in address bar) and Windows camera privacy settings; close other apps using the camera (Teams, Zoom, Camera app) |
-| Page won't load at all | Server isn't running — double-click `start-server.bat` |
+| Page won't load at all | Server isn't running — run `start.bat` |
 | QR code scans but page won't open on phone | Phone not on the same network, or Windows Firewall blocks port 8787 |
 | Camera view is mirrored wrong | The camera is mirrored intentionally (selfie view); screenshots match what guests see on screen |
 | Multiple cameras | Pick the right device in the browser's site settings for `localhost:8787` |
