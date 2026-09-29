@@ -7,8 +7,10 @@ A browser-based photo booth app. It uses the machine's webcam as the booth camer
 ## 1. Requirements
 
 - A Windows PC with a webcam
-- Node.js (the project ships with `node_modules/` — the `qrcode` package is already installed, so no npm install is needed)
+- **Node.js LTS** installed (https://nodejs.org) — the launcher scripts auto-detect it; if none is found they print setup instructions
 - Google Chrome or Microsoft Edge
+
+> The launcher scripts (`start.bat` / `start-server.bat`) automatically run `npm install` on first run, so a fresh clone works out of the box — no manual setup needed.
 
 ## 2. Project Layout
 
@@ -71,6 +73,8 @@ The screenshot is a composite of exactly what the screen shows at the moment of 
 ## 6. Replacing the Animations
 
 Just drop your own webm files into the folders — no code changes needed. Refresh the page to pick them up (the server reads the folders live).
+
+> Note: the webm files in this repository are **empty placeholders** (0 bytes, names kept). Copy your real animation files into `assets/idle/` and `assets/countdown/` on each machine — without them the booth falls back to the built-in CSS ring animation and a 3-2-1 number countdown.
 
 - `assets/idle/` — played in filename order. Recommended: `1.webm`, `2.webm`, `3.webm`
 - `assets/countdown/` — the **first character of the filename** decides the role:
