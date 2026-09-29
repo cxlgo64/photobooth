@@ -45,19 +45,30 @@ rem ---- start server if not already running ----
 curl -s "%URL%/api/config" 2>nul | find "idle" >nul
 if %errorlevel%==0 goto open_browser
 echo [PhotoBooth] Starting server...
-start "PhotoBooth Server" /min "" "%NODE%" server.js
+echo [PhotoBooth] Node: %NODE%
+rem (title + quoted program path; server output goes to server.log
+rem  so a startup crash leaves a readable trace)
+start "PhotoBooth Server" /min cmd /c ""%NODE%" server.js 1>"%~dp0server.log" 2>&1"
 
 set /a tries=0
 :wait_loop
 set /a tries+=1
-if %tries% gtr 30 (
-    echo [PhotoBooth] Server did not respond in time.
-    pause
-    exit /b 1
-)
-timeout /t 1 /nobreak >nul
+if %tries% gtr 30 goto server_timeout
+<nul set /p "=."
+timeout /t 1 /nobreak >nul 2>&1
 curl -s "%URL%/api/config" 2>nul | find "idle" >nul
 if errorlevel 1 goto wait_loop
+echo.
+goto open_browser
+
+:server_timeout
+echo.
+echo [PhotoBooth] ERROR: server did not respond within 30 seconds.
+echo [PhotoBooth] ---- server.log ----
+if exist "%~dp0server.log" type "%~dp0server.log"
+echo [PhotoBooth] --------------------
+pause
+exit /b 1
 
 :open_browser
 rem ---- open kiosk fullscreen: Chrome first, Edge fallback ----

@@ -115,3 +115,4 @@ Tips:
 | QR code scans but page won't open on phone | Phone not on the same network, or Windows Firewall blocks port 8787 |
 | Camera view is mirrored wrong | The camera is mirrored intentionally (selfie view); screenshots match what guests see on screen |
 | Multiple cameras | Pick the right device in the browser's site settings for `localhost:8787` |
+| `start.bat` stops at "Starting server..." | Update to the latest `start.bat`; if it still fails it now prints `server.log` with the actual server error — check that output |
