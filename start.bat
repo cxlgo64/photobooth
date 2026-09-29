@@ -22,17 +22,19 @@ if not defined NODE (
 )
 
 rem ---- first run: install dependencies ----
-if not exist "node_modules\qrcode\package.json" (
-    echo [PhotoBooth] First run: installing dependencies...
-    set "NPM=npm"
-    if /i not "%NODE%"=="node" for %%i in ("%NODE%") do set "NPM=%%~dpinpm.cmd"
-    call "%NPM%" install --no-audit --no-fund
-    if errorlevel 1 (
-        echo [PhotoBooth] ERROR: npm install failed. Check your network.
-        pause
-        exit /b 1
-    )
+rem (goto-style on purpose: %NPM% must NOT be set and used inside
+rem  the same ( ) block - cmd expands it at parse time and it breaks)
+if exist "node_modules\qrcode\package.json" goto deps_ok
+echo [PhotoBooth] First run: installing dependencies...
+set "NPM=npm"
+if /i not "%NODE%"=="node" for %%i in ("%NODE%") do set "NPM=%%~dpinpm.cmd"
+call "%NPM%" install --no-audit --no-fund
+if errorlevel 1 (
+    echo [PhotoBooth] ERROR: npm install failed. Check your network.
+    pause
+    exit /b 1
 )
+:deps_ok
 
 rem ---- server-only mode ----
 if /i "%~1"=="server" goto server_only
