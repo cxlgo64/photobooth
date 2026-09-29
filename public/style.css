@@ -1,0 +1,155 @@
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body {
+  width: 100%; height: 100%;
+  background: #000;
+  overflow: hidden;
+  font-family: system-ui, -apple-system, "Segoe UI", "Microsoft YaHei", sans-serif;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* 摄像头全屏（镜像自拍） */
+#cam {
+  position: fixed; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  transform: scaleX(-1);
+  z-index: 0;
+}
+
+/* 背景动画层：拍照阶段循环播放动画 3（不镜像，保持动画内容正确方向） */
+#animBg {
+  position: fixed; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* 前景动画层：idle 动画 / 拍照阶段的 1、2（不镜像） */
+#anim {
+  position: fixed; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* 暗角 */
+#vignette {
+  position: fixed; inset: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,.45) 100%);
+  z-index: 3;
+}
+
+/* 倒计时数字 */
+#countdown {
+  position: fixed; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  pointer-events: none;
+  color: #fff;
+  font-size: clamp(120px, 30vw, 340px);
+  font-weight: 800;
+  text-shadow: 0 0 60px rgba(255,77,109,.9), 0 6px 24px rgba(0,0,0,.6);
+  z-index: 6;
+}
+#countdown.pop { animation: pop .9s ease-out; }
+@keyframes pop {
+  0% { transform: scale(1.6); opacity: 0; }
+  20% { transform: scale(1); opacity: 1; }
+  85% { opacity: 1; }
+  100% { transform: scale(.9); opacity: 0; }
+}
+
+/* 拍照闪白 */
+#flash {
+  position: fixed; inset: 0;
+  background: #fff;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 20;
+}
+#flash.on { animation: flash .5s ease-out; }
+@keyframes flash { 0% { opacity: 0 } 15% { opacity: 1 } 100% { opacity: 0 } }
+
+/* 结果层（层级置顶，盖过所有动画层） */
+#result {
+  position: fixed; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(128, 128, 128, .45);
+  backdrop-filter: blur(8px);
+  z-index: 10;
+}
+.result-card {
+  display: flex; gap: 28px; align-items: center;
+  background: rgba(220, 220, 220, .75);
+  border: 1px solid rgba(255,255,255,.5);
+  border-radius: 24px;
+  padding: 28px;
+  box-shadow: 0 24px 80px rgba(0,0,0,.35);
+  animation: rise .45s cubic-bezier(.2,.9,.3,1.2);
+}
+@keyframes rise { from { transform: translateY(40px); opacity: 0 } to { transform: none; opacity: 1 } }
+#resultPhoto {
+  height: min(62vh, 560px);
+  border-radius: 14px;
+  box-shadow: 0 8px 30px rgba(0,0,0,.5);
+}
+.qr-side { display: flex; flex-direction: column; align-items: center; gap: 16px; }
+#qrImg {
+  width: min(30vh, 260px); height: min(30vh, 260px);
+  background: #fff; border-radius: 12px; padding: 10px;
+}
+.qr-text {
+  color: #0b3d91;
+  text-align: center;
+  font-size: clamp(16px, 2vw, 22px);
+  font-weight: 700;
+  letter-spacing: .2em; line-height: 1.8;
+}
+
+/* 摄像头错误 */
+#camError {
+  position: fixed; top: 40px; left: 50%; transform: translateX(-50%);
+  background: #c0392b; color: #fff;
+  padding: 12px 28px; border-radius: 10px;
+  font-size: 18px; z-index: 99;
+}
+
+/* CSS 备用动画（无 webm 时） */
+#fallbackAnim {
+  position: fixed; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  pointer-events: none;
+  z-index: 2;
+}
+#fallbackAnim .ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 3px solid rgba(255,77,109,.55);
+  width: 40vmin; height: 40vmin;
+  animation: spinPulse 6s linear infinite;
+}
+#fallbackAnim .r2 {
+  width: 55vmin; height: 55vmin;
+  border-color: rgba(255,255,255,.3);
+  border-style: dashed;
+  animation-duration: 9s;
+  animation-direction: reverse;
+}
+#fallbackAnim .r3 {
+  width: 70vmin; height: 70vmin;
+  border-color: rgba(77,163,255,.4);
+  border-width: 2px;
+  animation-duration: 14s;
+}
+@keyframes spinPulse {
+  0% { transform: rotate(0) scale(1); opacity: .8; }
+  50% { transform: rotate(180deg) scale(1.06); opacity: .4; }
+  100% { transform: rotate(360deg) scale(1); opacity: .8; }
+}
+
+.hidden { display: none !important; }

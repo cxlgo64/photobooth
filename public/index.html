@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Photo Booth</title>
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <!-- 摄像头画面（自拍镜像） -->
+  <video id="cam" autoplay playsinline muted></video>
+
+  <!-- 背景动画层（拍照阶段循环播放动画 3） -->
+  <video id="animBg" playsinline muted loop class="hidden"></video>
+
+  <!-- 前景动画层（idle 动画 / 拍照阶段的 1、2） -->
+  <video id="anim" playsinline muted></video>
+
+  <!-- 无 webm 文件时的 CSS 备用动画 -->
+  <div id="fallbackAnim" class="hidden">
+    <div class="ring r1"></div>
+    <div class="ring r2"></div>
+    <div class="ring r3"></div>
+  </div>
+
+  <!-- 暗角装饰 -->
+  <div id="vignette"></div>
+
+  <!-- 倒计时（仅无倒计时动画文件时的备用） -->
+  <div id="countdown" class="hidden"></div>
+
+  <!-- 拍照闪白 -->
+  <div id="flash"></div>
+
+  <!-- 结果：照片 + QR 码 -->
+  <div id="result" class="hidden">
+    <div class="result-card">
+      <img id="resultPhoto" alt="photo">
+      <div class="qr-side">
+        <img id="qrImg" alt="QR code">
+        <div class="qr-text">Scan with your phone<br>to download</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 摄像头异常提示 -->
+  <div id="camError" class="hidden">Camera unavailable. Please check the device and browser permissions.</div>
+
+  <script src="/app.js"></script>
+</body>
+</html>
