@@ -29,7 +29,9 @@ echo [PhotoBooth] First run: installing dependencies...
 set "NPM=npm"
 if /i not "%NODE%"=="node" for %%i in ("%NODE%") do set "NPM=%%~dpinpm.cmd"
 call "%NPM%" install --no-audit --no-fund
-if errorlevel 1 (
+rem (check the result by file existence: npm.cmd does not reliably
+rem  propagate its exit code through `call`)
+if not exist "node_modules\qrcode\package.json" (
     echo [PhotoBooth] ERROR: npm install failed. Check your network.
     pause
     exit /b 1

@@ -62,13 +62,14 @@ if exist "C:\Program Files\nodejs\node.exe" set "NPM=C:\Program Files\nodejs\npm
 echo [Deploy] Installing dependencies...
 pushd "%DEST%"
 call "%NPM%" install --no-audit --no-fund
-if errorlevel 1 (
+popd
+rem (check the result by file existence: npm.cmd does not reliably
+rem  propagate its exit code through `call`)
+if not exist "%DEST%\node_modules\qrcode\package.json" (
     echo [Deploy] ERROR: npm install failed. Check your network connection.
-    popd
     pause
     exit /b 1
 )
-popd
 :deps_ok
 
 rem ---- 4. Startup folder launcher ----
