@@ -75,6 +75,7 @@
   }
   function stopBg() {
     animBg.pause();
+    animBg.muted = true; // 恢复静音，回到 idle 后背景层不再出声
     animBg.removeAttribute('src');
     animBg.load();
     animBg.classList.add('hidden');
@@ -112,6 +113,10 @@
     if (introSrc) {
       animBg.src = introSrc;
       animBg.loop = true; // 循环，整个 countdown+result 期间保持不变
+      // 动画 3 播放声音：30% 音量。trigger 由真实按键/点击触发，
+      // 存在 user activation，浏览器允许带声音播放
+      animBg.muted = false;
+      animBg.volume = 0.3;
       animBg.classList.remove('hidden');
       animBg.play().catch(() => {});
     }
@@ -249,7 +254,11 @@
 
   // ---------- 事件 ----------
   window.addEventListener('keydown', e => {
-    if (e.key === 'Enter') trigger();
+    // Enter 或空格（USB 按钮实测为空格键）均可触发
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      trigger();
+    }
   });
   window.addEventListener('click', trigger);
 
