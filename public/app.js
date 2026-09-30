@@ -5,7 +5,7 @@
  *   1. intro 阶段：动画 3 单独循环播放 5 秒（背景层）
  *   2. seq 阶段：前景层依次播放动画 1 -> 2（倒计时画面由动画呈现），
  *      动画 3 作为背景保持不变继续循环；2 播完立即拍照
- *   3. result 阶段：显示照片 + QR 码 15 秒，动画 3 仍在背景继续播放
+ *   3. result 阶段：显示照片 + QR 码 25 秒（圆环显示剩余时间），动画 3 仍在背景继续播放
  *   4. 回到 idle：随机从 idle 清单某个文件开始播放，
  *      之后按文件名顺序 1 -> 2 -> 3 循环
  *
@@ -14,7 +14,7 @@
 (() => {
   const INTRO_SECONDS = 5;     // 动画 3 单独播放时长
   const COUNTDOWN_SECONDS = 3; // 数字倒数（同步播放 1->2）
-  const RESULT_SECONDS = 15;   // QR 展示时长
+  const RESULT_SECONDS = 25;   // QR 展示时长
 
   const cam = document.getElementById('cam');
   const animBg = document.getElementById('animBg');
@@ -25,6 +25,10 @@
   const resultEl = document.getElementById('result');
   const resultPhoto = document.getElementById('resultPhoto');
   const qrImg = document.getElementById('qrImg');
+  const qrTimerBar = document.getElementById('qrTimerBar');
+  // 圆环周长（r=34），用 dashoffset 从 0 -> C 表现"剩余时间耗尽"
+  const RING_C = 2 * Math.PI * 34;
+  let ringStart = 0;
   const camError = document.getElementById('camError');
 
   let state = 'idle'; // idle | countdown | result
@@ -237,12 +241,28 @@
       resultPhoto.src = dataUrl;
       qrImg.src = data.qr;
       resultEl.classList.remove('hidden');
+      startRing(); // 剩余时间环开始耗尽
     } catch (e) {
       console.error(e);
       backToIdle();
       return;
     }
-    resultTimer = setTimeout(backToIdle, RESULT_SECONDS * 1000); // QR 显示 8 秒
+    resultTimer = setTimeout(backToIdle, RESULT_SECONDS * 1000); // QR 显示 25 秒
+  }
+
+  // ---------- QR 剩余时间环 ----------
+  function startRing() {
+    ringStart = performance.now();
+    qrTimerBar.style.strokeDasharray = String(RING_C);
+    qrTimerBar.style.strokeDashoffset = '0';
+    requestAnimationFrame(tickRing);
+  }
+
+  function tickRing(now) {
+    if (state !== 'result') return; // 离开结果页即停止
+    const frac = Math.min((now - ringStart) / 1000 / RESULT_SECONDS, 1);
+    qrTimerBar.style.strokeDashoffset = String(RING_C * frac);
+    if (frac < 1) requestAnimationFrame(tickRing);
   }
 
   function backToIdle() {

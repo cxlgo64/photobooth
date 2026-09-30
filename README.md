@@ -77,7 +77,7 @@ Press `Win + R`, type `shell:startup`, press Enter, and drop a shortcut to `star
 | **Idle** | — | Webcam fills the screen (mirrored selfie view). Idle animations play on top: a **random** clip is picked first, then they loop in filename order 1 → 2 → 3 |
 | **Intro** | 5 s | Triggered by pressing **Enter**, **Space** (e.g. a USB trigger button that sends Space), or **clicking/tapping anywhere**. Animation `3.webm` starts looping on the background layer, with its audio playing at 30% volume |
 | **Countdown** | 3 s | Animations `1.webm` → `2.webm` play on the front layer while `3.webm` keeps looping behind them. The moment `2.webm` finishes, the shot is taken |
-| **Result** | 15 s | White flash, the photo + a QR code appear on top. `3.webm` still plays in the background. Anyone on the same Wi-Fi scans the QR code to open the download page and save the photo to their phone |
+| **Result** | 25 s | White flash, the photo + a QR code appear on top, with a circular ring next to the QR code showing the remaining time (no numbers). `3.webm` still plays in the background. Anyone on the same Wi-Fi scans the QR code to open the download page and save the photo to their phone |
 | **Back to idle** | — | Everything resets; idle resumes with a new random starting clip |
 
 The screenshot is a composite of exactly what the screen shows at the moment of capture: camera (cover) + background animation + the last frame of animation 2. Files are saved as PNG in `captures/`, named by timestamp.

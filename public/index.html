@@ -40,6 +40,11 @@
       <div class="qr-side">
         <img id="qrImg" alt="QR code">
         <div class="qr-text">Scan with your phone<br>to download</div>
+        <!-- 剩余时间环（不显示数字，随时间逆时针耗尽） -->
+        <svg id="qrTimer" viewBox="0 0 80 80" aria-hidden="true">
+          <circle id="qrTimerTrack" cx="40" cy="40" r="34"></circle>
+          <circle id="qrTimerBar" cx="40" cy="40" r="34"></circle>
+        </svg>
       </div>
     </div>
   </div>

@@ -99,6 +99,15 @@ html, body {
   box-shadow: 0 8px 30px rgba(0,0,0,.5);
 }
 .qr-side { display: flex; flex-direction: column; align-items: center; gap: 16px; }
+
+/* 剩余时间环 */
+#qrTimer {
+  width: 64px; height: 64px;
+  transform: rotate(-90deg); /* 从正上方开始耗尽 */
+}
+#qrTimer circle { fill: none; stroke-width: 7; }
+#qrTimerTrack { stroke: rgba(11, 61, 145, .18); }
+#qrTimerBar { stroke: #0b3d91; stroke-linecap: round; }
 #qrImg {
   width: min(30vh, 260px); height: min(30vh, 260px);
   background: #fff; border-radius: 12px; padding: 10px;
