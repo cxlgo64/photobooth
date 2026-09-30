@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Button Tester - Photo Booth</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100vh;
+    background: #101418; color: #e8ecf1;
+    font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+    display: flex; flex-direction: column; align-items: center;
+    padding: 32px 24px;
+  }
+  h1 { margin: 0 0 4px; font-size: 34px; }
+  .sub { color: #9aa7b4; margin: 0 0 28px; font-size: 16px; }
+  .panels { display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; }
+  .panel {
+    width: 300px; min-height: 220px;
+    background: #1a2029; border: 2px solid #2c3644; border-radius: 16px;
+    padding: 20px; text-align: center;
+    transition: border-color .15s, background .15s;
+  }
+  .panel.hit { border-color: #4fc3f7; background: #17303f; }
+  .panel h2 { margin: 0 0 14px; font-size: 18px; color: #9aa7b4; font-weight: 600; }
+  .panel .big {
+    font-size: 44px; font-weight: 800; min-height: 60px;
+    display: flex; align-items: center; justify-content: center;
+    word-break: break-all; line-height: 1.15;
+  }
+  .panel .detail { margin-top: 12px; font-size: 13px; color: #7d8b99; line-height: 1.6; min-height: 40px; }
+  #logWrap { width: 100%; max-width: 960px; margin-top: 28px; }
+  #logWrap h2 { font-size: 16px; color: #9aa7b4; }
+  #log {
+    background: #0b0e12; border: 1px solid #2c3644; border-radius: 10px;
+    padding: 12px 16px; font-family: Consolas, monospace; font-size: 13px;
+    line-height: 1.8; max-height: 220px; overflow-y: auto; white-space: pre-wrap;
+  }
+  #log .kb { color: #ffd54f; }
+  #log .ms { color: #81c784; }
+  #log .gp { color: #4fc3f7; }
+  #log .sys { color: #7d8b99; }
+  .hint { margin-top: 16px; font-size: 13px; color: #5f6d7a; max-width: 960px; line-height: 1.7; }
+</style>
+</head>
+<body>
+  <h1>Button Tester</h1>
+  <p class="sub">Press the physical button — whichever panel lights up tells you what the button actually is.</p>
+
+  <div class="panels">
+    <div class="panel" id="kbPanel">
+      <h2>Keyboard</h2>
+      <div class="big" id="kbBig">&mdash;</div>
+      <div class="detail" id="kbDetail">Waiting for a key event...</div>
+    </div>
+    <div class="panel" id="mousePanel">
+      <h2>Mouse</h2>
+      <div class="big" id="mouseBig">&mdash;</div>
+      <div class="detail" id="mouseDetail">Waiting for a click event...</div>
+    </div>
+    <div class="panel" id="gpPanel">
+      <h2>Gamepad</h2>
+      <div class="big" id="gpBig">&mdash;</div>
+      <div class="detail" id="gpDetail">No gamepad detected yet. Press the button once — browsers only reveal controllers after the first input.</div>
+    </div>
+  </div>
+
+  <div id="logWrap">
+    <h2>Event log</h2>
+    <div id="log"></div>
+  </div>
+
+  <p class="hint">
+    Reading the result: if the <b>Keyboard</b> panel shows e.g. "Enter", the button emulates a keyboard and
+    already works with the booth's Enter trigger. If <b>Gamepad</b> shows "Button 0" (or another index),
+    it is a controller button — tell me the index and I will wire it into the booth as a trigger.
+    If <b>Mouse</b> lights up, it emulates a mouse click. If nothing lights up at all, the device needs
+    its own driver — check Windows Device Manager.
+  </p>
+
+<script>
+(function () {
+  'use strict';
+
+  var logEl = document.getElementById('log');
+  function ts() {
+    var d = new Date();
+    return d.toTimeString().slice(0, 8) + '.' + String(d.getMilliseconds()).padStart(3, '0');
+  }
+  function log(cls, msg) {
+    var line = document.createElement('div');
+    line.className = cls;
+    line.textContent = '[' + ts() + '] ' + msg;
+    logEl.insertBefore(line, logEl.firstChild);
+    while (logEl.children.length > 15) logEl.removeChild(logEl.lastChild);
+  }
+  function flash(panel) {
+    panel.classList.add('hit');
+    setTimeout(function () { panel.classList.remove('hit'); }, 350);
+  }
+
+  log('sys', 'Tester ready. Press the button now.');
+
+  // ---------- Keyboard ----------
+  var kbPanel = document.getElementById('kbPanel');
+  var kbBig = document.getElementById('kbBig');
+  var kbDetail = document.getElementById('kbDetail');
+  window.addEventListener('keydown', function (e) {
+    e.preventDefault();
+    var name = e.key === ' ' ? 'Space' : e.key;
+    kbBig.textContent = name;
+    kbDetail.textContent = 'key="' + e.key + '"  code=' + e.code + '  keyCode=' + e.keyCode;
+    flash(kbPanel);
+    log('kb', 'KEYBOARD keydown: key="' + e.key + '" code=' + e.code + ' keyCode=' + e.keyCode);
+  });
+
+  // ---------- Mouse ----------
+  var mousePanel = document.getElementById('mousePanel');
+  var mouseBig = document.getElementById('mouseBig');
+  var mouseDetail = document.getElementById('mouseDetail');
+  var btnNames = ['Left', 'Middle (wheel)', 'Right', 'Back (X1)', 'Forward (X2)'];
+  window.addEventListener('mousedown', function (e) {
+    var name = btnNames[e.button] || ('Button ' + e.button);
+    mouseBig.textContent = name + ' click';
+    mouseDetail.textContent = 'button=' + e.button + '  at (' + e.clientX + ', ' + e.clientY + ')';
+    flash(mousePanel);
+    log('ms', 'MOUSE mousedown: ' + name + ' (button=' + e.button + ')');
+  });
+
+  // ---------- Gamepad ----------
+  var gpPanel = document.getElementById('gpPanel');
+  var gpBig = document.getElementById('gpBig');
+  var gpDetail = document.getElementById('gpDetail');
+  var prevPressed = {};
+
+  window.addEventListener('gamepadconnected', function (e) {
+    log('gp', 'GAMEPAD connected: "' + e.gamepad.id + '" (index ' + e.gamepad.index + ', ' +
+      e.gamepad.buttons.length + ' buttons, ' + e.gamepad.axes.length + ' axes)');
+  });
+  window.addEventListener('gamepaddisconnected', function (e) {
+    log('sys', 'Gamepad disconnected: "' + e.gamepad.id + '"');
+  });
+
+  function poll() {
+    var gps = navigator.getGamepads ? navigator.getGamepads() : [];
+    var found = false;
+    for (var g = 0; g < gps.length; g++) {
+      var gp = gps[g];
+      if (!gp) continue;
+      found = true;
+      gpDetail.textContent = '"' + gp.id + '" — ' + gp.buttons.length + ' buttons, ' + gp.axes.length + ' axes';
+      for (var i = 0; i < gp.buttons.length; i++) {
+        var key = gp.index + ':' + i;
+        var pressed = gp.buttons[i].pressed;
+        if (pressed && !prevPressed[key]) {
+          gpBig.textContent = 'Button ' + i;
+          flash(gpPanel);
+          log('gp', 'GAMEPAD button PRESSED: button index=' + i +
+            ' (value=' + gp.buttons[i].value.toFixed(2) + ')');
+        }
+        prevPressed[key] = pressed;
+      }
+      for (var a = 0; a < gp.axes.length; a++) {
+        if (Math.abs(gp.axes[a]) > 0.6) {
+          log('gp', 'GAMEPAD axis ' + a + ' = ' + gp.axes[a].toFixed(2));
+        }
+      }
+    }
+    requestAnimationFrame(poll);
+  }
+  poll();
+})();
+</script>
+</body>
+</html>
